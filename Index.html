@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ODI — Oswestry Disability Index Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16332e;
+    --ink-soft: #3c5650;
+    --paper: #eef2ef;
+    --card: #ffffff;
+    --line: #d6ddd8;
+    --accent: #b6773a;
+    --accent-soft: #f0e2cf;
+    --sage: #6f9583;
+    --sage-soft: #dfe9e3;
+    --danger: #a8402f;
+    --danger-soft: #f3ddd6;
+    --amber: #c08a2e;
+    --amber-soft: #f4e6c8;
+    --radius: 14px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eef2ef; --ink-soft: #b9c7c1; --paper: #10201c; --card: #16302a;
+      --line: #2c463d; --accent: #e0a866; --accent-soft: #3a2c18;
+      --sage: #8fb6a2; --sage-soft: #1c3a2e; --danger: #e08975; --danger-soft: #3d201b;
+      --amber: #e3bd6f; --amber-soft: #3a2f14;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #eef2ef; --ink-soft: #b9c7c1; --paper: #10201c; --card: #16302a;
+    --line: #2c463d; --accent: #e0a866; --accent-soft: #3a2c18;
+    --sage: #8fb6a2; --sage-soft: #1c3a2e; --danger: #e08975; --danger-soft: #3d201b;
+    --amber: #e3bd6f; --amber-soft: #3a2f14;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 740px; margin: 0 auto; padding: 28px 18px 90px; position: relative; }
+
+  .header-band {
+    position: relative;
+    border-radius: 20px;
+    background: linear-gradient(155deg, var(--sage-soft) 0%, var(--paper) 62%);
+    padding: 22px 20px 18px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .header-band::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(currentColor 1.4px, transparent 1.4px);
+    background-size: 16px 16px;
+    color: var(--sage);
+    opacity: .16;
+    -webkit-mask-image: radial-gradient(circle at 88% 12%, black, transparent 60%);
+    mask-image: radial-gradient(circle at 88% 12%, black, transparent 60%);
+  }
+  .mascot {
+    position: relative; flex: none; width: 64px; height: 64px; color: var(--accent);
+    animation: mascot-bob 3.2s ease-in-out infinite;
+  }
+  .mascot svg { width: 100%; height: 100%; }
+  @keyframes mascot-bob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-5px) rotate(2deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot { animation: none; }
+  }
+
+  header.top {
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand h1 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .brand p { margin: 0; color: var(--ink-soft); font-size: 14.5px; max-width: 46ch; }
+  .badge-oswestry {
+    display: flex; align-items: center; gap: 8px; color: var(--sage);
+    font-size: 13px; font-weight: 600;
+  }
+  .badge-oswestry svg { width: 34px; height: 34px; }
+
+  .progress-rail {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    background: var(--paper);
+    padding: 10px 0 14px;
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 6px; border-radius: 4px; background: var(--line); overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--sage); width: 0%;
+    transition: width .35s ease;
+  }
+  .progress-label {
+    font-size: 12.5px; color: var(--ink-soft); margin-top: 6px;
+    display: flex; justify-content: space-between;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 20px 18px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 19px; font-weight: 600; margin: 0 0 14px;
+  }
+  .id-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px;
+  }
+  .id-grid .full { grid-column: 1 / -1; }
+  .field label {
+    display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+    margin-bottom: 5px; text-transform: none;
+  }
+  .field input, .field select {
+    width: 100%; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); font: inherit; font-size: 14.5px;
+  }
+  .field input:focus, .field select:focus, button:focus-visible, .opt input:focus-visible + .opt-label {
+    outline: 2px solid var(--sage); outline-offset: 2px;
+  }
+  @media (max-width: 520px) { .id-grid { grid-template-columns: 1fr; } }
+
+  .section-card { padding: 0; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+  .section-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px -14px rgba(22,51,46,.28);
+    border-color: var(--sage);
+  }
+  .section-card:hover .section-icon svg { transform: rotate(-6deg) scale(1.08); }
+  .section-icon svg { transition: transform .3s ease; }
+  .section-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px 14px; border-bottom: 1px solid var(--line);
+  }
+  .section-num {
+    flex: none; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--sage-soft); color: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13.5px; font-family: 'Source Serif 4', serif;
+  }
+  .section-icon { flex: none; width: 40px; height: 40px; color: var(--accent); }
+  .section-icon svg { width: 100%; height: 100%; }
+  .section-titles { flex: 1; min-width: 0; }
+  .section-titles h3 {
+    font-family: 'Source Serif 4', serif; font-size: 17px; font-weight: 600; margin: 0 0 2px;
+  }
+  .section-titles p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+  .section-status {
+    flex: none; width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center;
+  }
+  .section-status.done { background: var(--sage); border-color: var(--sage); animation: status-pop .35s ease; }
+  .section-status.done svg { width: 12px; height: 12px; stroke: white; }
+  @keyframes status-pop {
+    0% { transform: scale(.4); } 60% { transform: scale(1.25); } 100% { transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) { .section-status.done { animation: none; } }
+
+  .complete-banner {
+    display: none;
+    align-items: center; gap: 10px;
+    background: var(--sage-soft); color: var(--sage);
+    border: 1px dashed var(--sage);
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 16px;
+    font-size: 13.5px; font-weight: 600;
+  }
+  .complete-banner.show { display: flex; animation: banner-in .4s ease; }
+  .complete-banner svg { flex: none; width: 20px; height: 20px; }
+  @keyframes banner-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .confetti-piece {
+    position: fixed; top: -10px; width: 8px; height: 8px; border-radius: 2px;
+    pointer-events: none; z-index: 40; opacity: .9;
+    animation-name: confetti-fall; animation-timing-function: ease-in; animation-fill-mode: forwards;
+  }
+  @keyframes confetti-fall {
+    to { transform: translateY(105vh) rotate(340deg); opacity: 0; }
+  }
+
+  .options { padding: 6px 12px 14px; }
+  .opt {
+    display: block; position: relative;
+  }
+  .opt input { position: absolute; opacity: 0; }
+  .opt-label {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 11px 10px; border-radius: 10px; cursor: pointer;
+    font-size: 14.5px; color: var(--ink);
+    transition: background .15s ease;
+  }
+  .opt-label:hover { background: var(--paper); }
+  .opt input:checked + .opt-label {
+    background: var(--accent-soft);
+    animation: opt-pop .28s ease;
+  }
+  @keyframes opt-pop {
+    0% { transform: scale(.98); }
+    55% { transform: scale(1.012); }
+    100% { transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .opt input:checked + .opt-label { animation: none; }
+  }
+  .opt-dot {
+    flex: none; width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--line); margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .opt input:checked + .opt-label .opt-dot { border-color: var(--accent); }
+  .opt input:checked + .opt-label .opt-dot::after {
+    content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+  }
+  .opt-text { flex: 1; }
+  .opt-score {
+    flex: none; font-size: 11.5px; color: var(--ink-soft); font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+
+  .actions {
+    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  }
+  button {
+    font: inherit; font-weight: 600; font-size: 15px;
+    border-radius: 10px; padding: 13px 22px; border: none; cursor: pointer;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); flex: 1; min-width: 200px; }
+  .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .hint-missing {
+    font-size: 13px; color: var(--danger); margin-top: 10px; display: none;
+  }
+
+  .result-card { display: none; }
+  .result-card.show { display: block; }
+  .score-row {
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .score-num { font-family: 'Source Serif 4', serif; font-size: 52px; font-weight: 700; line-height: 1; }
+  .score-cat {
+    padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    display: inline-block;
+  }
+  .score-bar-wrap { margin: 6px 0 18px; }
+  .score-bar-track {
+    height: 12px; border-radius: 8px; background: var(--line); position: relative; overflow: hidden;
+  }
+  .score-bar-fill { height: 100%; border-radius: 8px; transition: width .6s ease; }
+  .score-bar-marks {
+    display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft);
+    margin-top: 5px;
+  }
+  .interp-text { font-size: 14.5px; color: var(--ink); margin: 0 0 18px; }
+  .breakdown { display: grid; gap: 6px; margin-bottom: 6px; }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13.5px; padding: 7px 0; border-bottom: 1px dashed var(--line);
+  }
+  .breakdown-row span.name { color: var(--ink-soft); }
+  .breakdown-row span.val { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  footer.note {
+    margin-top: 26px; font-size: 12px; color: var(--ink-soft); text-align: center;
+  }
+
+  .submit-status {
+    display: none; align-items: center; gap: 10px;
+    border-radius: 12px; padding: 10px 14px; margin-top: 14px;
+    font-size: 13.5px; font-weight: 600;
+  }
+  .submit-status.show { display: flex; }
+  .submit-status.pending { background: var(--amber-soft); color: var(--amber); }
+  .submit-status.ok { background: var(--sage-soft); color: var(--sage); }
+  .submit-status.err { background: var(--danger-soft); color: var(--danger); }
+  .submit-status svg { flex: none; width: 18px; height: 18px; }
+
+  .admin-link {
+    display: block; text-align: center; font-size: 12.5px; color: var(--ink-soft);
+    margin-top: 22px; text-decoration: underline; background: none; border: none;
+    cursor: pointer; font-family: inherit;
+  }
+
+    body { background: white; }
+    .progress-rail, .actions, .no-print { display: none !important; }
+    .section-card { break-inside: avoid; }
+    .card { border-color: #999; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header-band">
+    <header class="top">
+      <div class="mascot" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="17" r="9" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M32 26v16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M32 30c-9 2-9 10-6 16M32 30c9 2 9 10 6 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M22 42l-5 11M42 42l5 11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M20 24c-3 2-4 5-3 9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+          <path d="M44 24c3 2 4 5 3 9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <h1>Oswestry Disability Index</h1>
+        <p>Instrumen digital untuk mengukur disabilitas fungsional pasien dengan keluhan nyeri punggung bawah (low back pain).</p>
+      </div>
+      <div class="badge-oswestry">
+        <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" stroke="currentColor" stroke-width="1.6"/><path d="M12 24c2-6 4-10 8-10s6 4 8 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="20" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>ODI 2.1a</span>
+      </div>
+    </header>
+  </div>
+
+  <div class="progress-rail no-print">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label"><span id="progressText">0 dari 10 domain terisi</span><span id="progressPct">0%</span></div>
+  </div>
+
+  <div class="complete-banner no-print" id="completeBanner">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 6.3L21 9l-5 4.6L17.4 21 12 17.3 6.6 21 8 13.6 3 9l6.6-.7L12 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Semua 10 domain sudah terisi — siap dihitung!</span>
+  </div>
+
+  <section class="card">
+    <h2>Identitas Pasien</h2>
+    <div class="id-grid">
+      <div class="field"><label for="pName">Nama Pasien</label><input id="pName" type="text" placeholder="Nama lengkap"></div>
+      <div class="field"><label for="pId">No. RM / ID</label><input id="pId" type="text" placeholder="Nomor rekam medis"></div>
+      <div class="field"><label for="pAge">Usia</label><input id="pAge" type="number" min="0" placeholder="Tahun"></div>
+      <div class="field">
+        <label for="pSex">Jenis Kelamin</label>
+        <select id="pSex"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select>
+      </div>
+      <div class="field"><label for="pDate">Tanggal Pemeriksaan</label><input id="pDate" type="date"></div>
+      <div class="field"><label for="pTherapist">Pemeriksa / Fisioterapis</label><input id="pTherapist" type="text" placeholder="Nama pemeriksa"></div>
+      <div class="field full"><label for="pDx">Keluhan / Diagnosis Kerja</label><input id="pDx" type="text" placeholder="Contoh: Low Back Pain e.c. HNP L4-L5"></div>
+    </div>
+  </section>
+
+  <div id="sections"></div>
+
+  <div class="hint-missing" id="missingHint">Lengkapi minimal satu domain untuk menghitung skor.</div>
+  <div class="actions no-print">
+    <button class="btn-primary" id="calcBtn">Hitung Skor ODI</button>
+    <button class="btn-secondary" id="resetBtn" type="button">Reset Formulir</button>
+  </div>
+
+  <section class="card result-card" id="resultCard">
+    <h2>Hasil Pengukuran</h2>
+    <div class="score-row">
+      <div class="score-num" id="scoreNum">0%</div>
+      <div id="scoreCat" class="score-cat">—</div>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-track"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+      <div class="score-bar-marks"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100%</span></div>
+    </div>
+    <p class="interp-text" id="interpText"></p>
+    <div class="breakdown" id="breakdown"></div>
+    <div class="actions no-print">
+      <button class="btn-secondary" id="printBtn" type="button">Cetak / Simpan sebagai PDF</button>
+    </div>
+    <div class="submit-status no-print" id="submitStatus"></div>
+  </section>
+
+  <button class="admin-link no-print" id="adminLink" type="button">Ringkasan data (khusus admin/pemeriksa)</button>
+
+  <footer class="note">
+    Alat bantu skrining berbasis kuesioner ODI (Fairbank et al.). Hasil merupakan alat bantu klinis dan tetap memerlukan interpretasi oleh tenaga kesehatan yang berwenang.
+  </footer>
+</div>
+
+<script>
+const ICONS = {
+  pain: '<svg viewBox="0 0 48 48" fill="none"><path d="M24 6v8M24 34v8M6 24h8M34 24h8M11 11l5.5 5.5M31.5 31.5 37 37M37 11l-5.5 5.5M16.5 31.5 11 37" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="24" r="7" stroke="currentColor" stroke-width="2"/></svg>',
+  care: '<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="13" r="6" stroke="currentColor" stroke-width="2"/><path d="M11 40c1-8 6-13 13-13s12 5 13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 40h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  lift: '<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="9" r="4" stroke="currentColor" stroke-width="2"/><path d="M24 13v10M24 23l-9 8M24 23l9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="10" y="31" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="28" y="31" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>',
+  walk: '<svg viewBox="0 0 48 48" fill="none"><circle cx="27" cy="9" r="4" stroke="currentColor" stroke-width="2"/><path d="M25 13l-4 9 6 4 2 12M21 22l-8 5M27 26l6 3 3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sit: '<svg viewBox="0 0 48 48" fill="none"><circle cx="20" cy="10" r="4" stroke="currentColor" stroke-width="2"/><path d="M20 14v10l7 3v12M20 24h-4v14M27 27l7 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 38h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  stand: '<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M24 12v16M24 20l-8 4M24 20l8 4M24 28l-5 12M24 28l5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  sleep: '<svg viewBox="0 0 48 48" fill="none"><path d="M8 30h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-6Z" stroke="currentColor" stroke-width="2"/><path d="M8 30v-6a4 4 0 0 1 4-4h6a3 3 0 0 1 3 3v3M8 30v8M40 30v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M32 12a5 5 0 1 0 6 6 6 6 0 0 1-6-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  intimacy: '<svg viewBox="0 0 48 48" fill="none"><path d="M24 38S9 29 9 18.5A8.5 8.5 0 0 1 24 13a8.5 8.5 0 0 1 15 5.5C39 29 24 38 24 38Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  social: '<svg viewBox="0 0 48 48" fill="none"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="16" r="5" stroke="currentColor" stroke-width="2"/><path d="M6 39c0-7 4-11 10-11s10 4 10 11M22 39c0-7 4-11 10-11s10 4 10 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  travel: '<svg viewBox="0 0 48 48" fill="none"><path d="M6 24 41 9l-9 30-7-12-12-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M25 27l7 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+
+const SECTIONS = [
+  { key:'pain', icon:'pain', title:'Intensitas Nyeri', desc:'Seberapa berat nyeri yang dirasakan saat ini',
+    options:[
+      'Saat ini saya tidak merasakan nyeri sama sekali',
+      'Saat ini nyeri saya sangat ringan',
+      'Saat ini nyeri saya berada pada tingkat sedang',
+      'Saat ini nyeri saya cukup berat',
+      'Saat ini nyeri saya sangat berat',
+      'Saat ini nyeri saya adalah yang terburuk yang bisa saya bayangkan'
+    ]},
+  { key:'care', icon:'care', title:'Perawatan Diri', desc:'Mandi, berpakaian, dan kebersihan diri',
+    options:[
+      'Saya dapat merawat diri secara normal tanpa menimbulkan nyeri tambahan',
+      'Saya dapat merawat diri secara normal, namun terasa nyeri tambahan',
+      'Merawat diri terasa nyeri, sehingga saya melakukannya dengan lambat dan hati-hati',
+      'Saya memerlukan sedikit bantuan, meski sebagian besar masih dapat saya lakukan sendiri',
+      'Saya memerlukan bantuan setiap hari untuk sebagian besar perawatan diri',
+      'Saya tidak dapat berpakaian sendiri, sulit mandi, dan hanya berbaring di tempat tidur'
+    ]},
+  { key:'lift', icon:'lift', title:'Mengangkat Benda', desc:'Kemampuan mengangkat dan membawa barang',
+    options:[
+      'Saya dapat mengangkat benda berat tanpa menimbulkan nyeri tambahan',
+      'Saya dapat mengangkat benda berat, namun menimbulkan nyeri tambahan',
+      'Nyeri membuat saya tidak bisa mengangkat benda berat dari lantai, tetapi masih bisa bila posisinya nyaman (mis. di atas meja)',
+      'Nyeri membuat saya tidak bisa mengangkat benda berat, tetapi masih bisa mengangkat benda ringan–sedang bila posisinya nyaman',
+      'Saya hanya dapat mengangkat benda yang sangat ringan',
+      'Saya sama sekali tidak dapat mengangkat atau membawa apa pun'
+    ]},
+  { key:'walk', icon:'walk', title:'Berjalan', desc:'Jarak berjalan yang masih dapat ditoleransi',
+    options:[
+      'Nyeri tidak menghalangi saya berjalan sejauh apa pun',
+      'Nyeri menghalangi saya berjalan lebih dari 1 km',
+      'Nyeri menghalangi saya berjalan lebih dari 500 meter',
+      'Nyeri menghalangi saya berjalan lebih dari 100 meter',
+      'Saya hanya dapat berjalan dengan tongkat atau alat bantu jalan',
+      'Saya hanya bisa berbaring di tempat tidur dan harus merangkak ke kamar mandi'
+    ]},
+  { key:'sit', icon:'sit', title:'Duduk', desc:'Lama duduk yang masih dapat ditoleransi',
+    options:[
+      'Saya dapat duduk di kursi mana pun selama yang saya mau',
+      'Saya hanya dapat duduk di kursi favorit saya selama yang saya mau',
+      'Nyeri menghalangi saya duduk lebih dari 1 jam',
+      'Nyeri menghalangi saya duduk lebih dari 30 menit',
+      'Nyeri menghalangi saya duduk lebih dari 10 menit',
+      'Nyeri menghalangi saya duduk sama sekali'
+    ]},
+  { key:'stand', icon:'stand', title:'Berdiri', desc:'Lama berdiri yang masih dapat ditoleransi',
+    options:[
+      'Saya dapat berdiri selama yang saya mau tanpa nyeri tambahan',
+      'Saya dapat berdiri selama yang saya mau, namun menimbulkan nyeri tambahan',
+      'Nyeri menghalangi saya berdiri lebih dari 1 jam',
+      'Nyeri menghalangi saya berdiri lebih dari 30 menit',
+      'Nyeri menghalangi saya berdiri lebih dari 10 menit',
+      'Nyeri menghalangi saya berdiri sama sekali'
+    ]},
+  { key:'sleep', icon:'sleep', title:'Tidur', desc:'Kualitas dan durasi tidur',
+    options:[
+      'Tidur saya tidak pernah terganggu oleh nyeri',
+      'Tidur saya sesekali terganggu oleh nyeri',
+      'Karena nyeri, saya tidur kurang dari 6 jam',
+      'Karena nyeri, saya tidur kurang dari 4 jam',
+      'Karena nyeri, saya tidur kurang dari 2 jam',
+      'Nyeri membuat saya sama sekali tidak bisa tidur'
+    ]},
+  { key:'intimacy', icon:'intimacy', title:'Kehidupan Seksual', desc:'Dampak nyeri terhadap kehidupan seksual (bila berlaku)',
+    options:[
+      'Kehidupan seksual saya normal dan tidak menimbulkan nyeri tambahan',
+      'Kehidupan seksual saya normal, namun menimbulkan sedikit nyeri tambahan',
+      'Kehidupan seksual saya hampir normal, namun cukup nyeri',
+      'Kehidupan seksual saya sangat terbatas akibat nyeri',
+      'Kehidupan seksual saya hampir tidak ada akibat nyeri',
+      'Nyeri mencegah saya melakukan aktivitas seksual sama sekali'
+    ]},
+  { key:'social', icon:'social', title:'Kehidupan Sosial', desc:'Interaksi sosial dan aktivitas bersama orang lain',
+    options:[
+      'Kehidupan sosial saya normal dan tidak menimbulkan nyeri tambahan',
+      'Kehidupan sosial saya normal, namun meningkatkan derajat nyeri',
+      'Nyeri tidak berdampak besar pada kehidupan sosial saya, selain membatasi aktivitas berenergi tinggi seperti olahraga',
+      'Nyeri membatasi kehidupan sosial saya dan saya tidak sering keluar rumah',
+      'Nyeri membatasi kehidupan sosial saya hanya di rumah',
+      'Saya tidak memiliki kehidupan sosial karena nyeri'
+    ]},
+  { key:'travel', icon:'travel', title:'Bepergian', desc:'Toleransi terhadap perjalanan',
+    options:[
+      'Saya dapat bepergian ke mana saja tanpa menimbulkan nyeri',
+      'Saya dapat bepergian ke mana saja, namun menimbulkan nyeri tambahan',
+      'Nyeri cukup mengganggu, tetapi saya tetap bisa bepergian lebih dari 2 jam',
+      'Nyeri membatasi perjalanan saya kurang dari 1 jam',
+      'Nyeri membatasi perjalanan singkat, tidak lebih dari 30 menit',
+      'Nyeri mencegah saya bepergian kecuali untuk berobat'
+    ]}
+];
+
+// =====================================================================
+// KONFIGURASI — ganti API_URL dengan URL Web App Google Apps Script Anda
+// (lihat file apps-script-backend.gs untuk kode backend & cara deploy)
+// =====================================================================
+const CONFIG = {
+  API_URL: 'GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT_ANDA'
+};
+
+const answers = {};
+
+function setStatus(kind, html) {
+  const el = document.getElementById('submitStatus');
+  el.className = 'submit-status show ' + kind;
+  el.innerHTML = html;
+}
+
+async function sendToServer(payload) {
+  if (!CONFIG.API_URL || CONFIG.API_URL.startsWith('GANTI_')) {
+    setStatus('err', 'Backend belum dikonfigurasi — hasil hanya tersimpan lokal di perangkat ini.');
+    return;
+  }
+  setStatus('pending', '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg> Mengirim hasil ke server...');
+  try {
+    // text/plain menghindari CORS preflight yang tidak didukung Apps Script;
+    // mode no-cors berarti kita tidak bisa membaca respons, jadi anggap
+    // terkirim begitu permintaan berhasil dikirim tanpa error jaringan.
+    await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    setStatus('ok', '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Hasil berhasil dikirim & tersimpan di server.');
+  } catch (err) {
+    setStatus('err', '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Gagal mengirim (periksa koneksi internet). Hasil masih bisa dicetak secara lokal.');
+  }
+}
+
+document.getElementById('adminLink').addEventListener('click', () => {
+  if (!CONFIG.API_URL || CONFIG.API_URL.startsWith('GANTI_')) {
+    alert('Backend belum dikonfigurasi. Deploy apps-script-backend.gs terlebih dahulu, lalu isi CONFIG.API_URL di file ini.');
+    return;
+  }
+  const key = prompt('Masukkan kode admin untuk melihat ringkasan data:');
+  if (key) window.open(CONFIG.API_URL + '?key=' + encodeURIComponent(key), '_blank');
+});
+
+function renderSections() {
+  const root = document.getElementById('sections');
+  root.innerHTML = SECTIONS.map((s, i) => `
+    <section class="card section-card" data-key="${s.key}">
+      <div class="section-head">
+        <div class="section-num">${i+1}</div>
+        <div class="section-icon">${ICONS[s.icon]}</div>
+        <div class="section-titles">
+          <h3>${s.title}</h3>
+          <p>${s.desc}</p>
+        </div>
+        <div class="section-status" id="status-${s.key}"></div>
+      </div>
+      <div class="options">
+        ${s.options.map((txt, score) => `
+          <label class="opt">
+            <input type="radio" name="${s.key}" value="${score}">
+            <span class="opt-label">
+              <span class="opt-dot"></span>
+              <span class="opt-text">${txt}</span>
+              <span class="opt-score">${score}</span>
+            </span>
+          </label>
+        `).join('')}
+      </div>
+    </section>
+  `).join('');
+
+  SECTIONS.forEach(s => {
+    document.querySelectorAll(`input[name="${s.key}"]`).forEach(inp => {
+      inp.addEventListener('change', () => {
+        answers[s.key] = parseInt(inp.value, 10);
+        document.getElementById(`status-${s.key}`).classList.add('done');
+        document.getElementById(`status-${s.key}`).innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        updateProgress();
+      });
+    });
+  });
+}
+
+let celebrated = false;
+function launchConfetti() {
+  const colors = ['#b6773a', '#6f9583', '#c08a2e', '#16332e'];
+  for (let i = 0; i < 26; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDuration = (1.6 + Math.random() * 1.2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.3) + 's';
+    piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 3200);
+  }
+}
+
+function updateProgress() {
+  const n = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = (n/10*100) + '%';
+  document.getElementById('progressText').textContent = `${n} dari 10 domain terisi`;
+  document.getElementById('progressPct').textContent = Math.round(n/10*100) + '%';
+  document.getElementById('calcBtn').disabled = n === 0;
+
+  const banner = document.getElementById('completeBanner');
+  if (n === 10) {
+    banner.classList.add('show');
+    if (!celebrated) {
+      celebrated = true;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduceMotion) launchConfetti();
+    }
+  } else {
+    banner.classList.remove('show');
+    celebrated = false;
+  }
+}
+
+function categoryFor(pct) {
+  if (pct <= 20) return { label: 'Disabilitas Minimal', color: 'var(--sage)', bg: 'var(--sage-soft)',
+    text: 'Pasien mampu mengatasi sebagian besar aktivitas hidup sehari-hari. Umumnya belum memerlukan penanganan intensif, cukup edukasi mengenai posisi, mengangkat beban, dan kebugaran.' };
+  if (pct <= 40) return { label: 'Disabilitas Sedang', color: 'var(--amber)', bg: 'var(--amber-soft)',
+    text: 'Nyeri dan gangguan fungsional lebih terasa pada aktivitas duduk, berdiri, dan mengangkat beban. Program terapi konservatif umumnya direkomendasikan.' };
+  if (pct <= 60) return { label: 'Disabilitas Berat', color: 'var(--danger)', bg: 'var(--danger-soft)',
+    text: 'Nyeri secara signifikan membatasi aktivitas sehari-hari. Pemeriksaan lebih lanjut dan program intervensi terarah diperlukan.' };
+  if (pct <= 80) return { label: 'Lumpuh Fungsional (Crippling)', color: 'var(--danger)', bg: 'var(--danger-soft)',
+    text: 'Nyeri memengaruhi hampir seluruh aspek kehidupan pasien. Diperlukan evaluasi menyeluruh dan penanganan multidisiplin.' };
+  return { label: 'Disabilitas Total', color: 'var(--danger)', bg: 'var(--danger-soft)',
+    text: 'Pasien mengalami keterbatasan berat hingga terbaring di tempat tidur. Perlu evaluasi klinis segera dan penanganan komprehensif.' };
+}
+
+function calculate() {
+  const keys = Object.keys(answers);
+  if (keys.length === 0) return;
+  const total = keys.reduce((sum, k) => sum + answers[k], 0);
+  const pct = (total / (keys.length * 5)) * 100;
+  const roundedPct = Math.round(pct * 10) / 10;
+
+  const cat = categoryFor(roundedPct);
+  document.getElementById('scoreNum').textContent = roundedPct + '%';
+  document.getElementById('scoreNum').style.color = cat.color;
+  const catEl = document.getElementById('scoreCat');
+  catEl.textContent = cat.label;
+  catEl.style.background = cat.bg;
+  catEl.style.color = cat.color;
+  document.getElementById('scoreBarFill').style.width = Math.min(roundedPct,100) + '%';
+  document.getElementById('scoreBarFill').style.background = cat.color;
+  document.getElementById('interpText').textContent = cat.text;
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = SECTIONS.filter(s => answers[s.key] !== undefined).map(s => `
+    <div class="breakdown-row"><span class="name">${s.title}</span><span class="val">${answers[s.key]} / 5</span></div>
+  `).join('') + `<div class="breakdown-row"><span class="name"><strong>Total</strong></span><span class="val">${total} / ${keys.length*5}</span></div>`;
+
+  const card = document.getElementById('resultCard');
+  card.classList.add('show');
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const payload = {
+    nama: document.getElementById('pName').value,
+    noRM: document.getElementById('pId').value,
+    usia: document.getElementById('pAge').value,
+    jenisKelamin: document.getElementById('pSex').value,
+    tanggalPeriksa: document.getElementById('pDate').value,
+    pemeriksa: document.getElementById('pTherapist').value,
+    diagnosis: document.getElementById('pDx').value,
+    domainScores: Object.assign({}, answers),
+    skorTotal: total,
+    skorMaks: keys.length * 5,
+    persen: roundedPct,
+    kategori: cat.label
+  };
+  sendToServer(payload);
+}
+
+document.getElementById('calcBtn').addEventListener('click', calculate);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.querySelectorAll('input[type=radio]').forEach(i => i.checked = false);
+  document.querySelectorAll('.section-status').forEach(el => { el.classList.remove('done'); el.innerHTML = ''; });
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('submitStatus').className = 'submit-status';
+  document.getElementById('submitStatus').innerHTML = '';
+  ['pName','pId','pAge','pDate','pTherapist','pDx'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pSex').value = '';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+renderSections();
+updateProgress();
+</script>
+</body>
+</html>
